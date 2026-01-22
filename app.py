@@ -1,4 +1,4 @@
- from flask import Flask, request, render_template, send_file, redirect, url_for
+from flask import Flask, request, render_template, send_file, redirect, url_for
 from web3 import Web3
 import hashlib
 import os
@@ -15,17 +15,16 @@ INFURA_URL = os.environ.get("INFURA_URL")
 PRIVATE_KEY = os.environ.get("PRIVATE_KEY")
 
 if not INFURA_URL or not PRIVATE_KEY:
-    raise Exception("❌ ENV variables INFURA_URL or PRIVATE_KEY not set")
+    raise Exception("ENV variables INFURA_URL or PRIVATE_KEY not set")
 
 w3 = Web3(Web3.HTTPProvider(INFURA_URL))
 
 if not w3.is_connected():
-    raise Exception("❌ Blockchain not connected")
+    raise Exception("Blockchain not connected")
 
 account_owner = w3.eth.account.from_key(PRIVATE_KEY).address
 
 # ================= HOSPITALS =================
-# (You can replace with real Metamask addresses if needed)
 HOSPITALS = {
     "Apollo Hospital": "0x1111111111111111111111111111111111111111",
     "AIIMS Hospital": "0x2222222222222222222222222222222222222222",
@@ -74,7 +73,7 @@ def upload():
         file = request.files.get("file")
 
         if not patient_id or not hospital_name or not file:
-            return "❌ Missing details"
+            return "Missing details"
 
         hospital_address = Web3.to_checksum_address(HOSPITALS[hospital_name])
 
@@ -112,7 +111,7 @@ def upload():
         return redirect(url_for("main"))
 
     except Exception as e:
-        return f"❌ Upload Error: {str(e)}"
+        return f"Upload Error: {str(e)}"
 
 
 # ================= DOWNLOAD =================
@@ -126,7 +125,7 @@ def download():
         hospital_name = request.form.get("hospital")
 
         if not patient_id or not hospital_name:
-            return "❌ Missing details"
+            return "Missing details"
 
         hospital_address = Web3.to_checksum_address(HOSPITALS[hospital_name])
 
@@ -135,16 +134,16 @@ def download():
         ).call()
 
         if not allowed:
-            return "❌ Access Denied by Blockchain"
+            return "Access Denied by Blockchain"
 
         for file in os.listdir(UPLOAD_FOLDER):
             if file.startswith(patient_id + "_"):
                 return send_file(os.path.join(UPLOAD_FOLDER, file), as_attachment=True)
 
-        return "❌ File not found"
+        return "File not found"
 
     except Exception as e:
-        return f"❌ Download Error: {str(e)}"
+        return f"Download Error: {str(e)}"
 
 
 if __name__ == "__main__":
